@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-W9MQ5VQT');</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pré-Black Ratoeira</title>
+  <title>Pré-Black Ratoeira | Radar de Mercado e live 29/10</title>
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <script defer src="https://cdn.radimarkt.com/tag.js" data-tag-id="10873-ac52aed3fa31418b859fea83d6f5c68e" data-event-host="api.radimarkt.com" data-plat-params="src,sck,utm_medium,utm_campaign,utm_content,utm_source"></script>
   <script defer src="https://cdn.radimarkt.com/tag.js" data-tag-id="10873-f428b3e4bff049caa88e66d10cf89b33" data-event-host="api.radimarkt.com" data-plat-params="src,sck,utm_medium,utm_campaign,utm_content,utm_source"></script>
@@ -176,6 +177,14 @@ h1 {
   border-radius: 16px;
   background: var(--dark);
   display: block;
+}
+.honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .form-card {
   background: var(--card);
@@ -742,6 +751,7 @@ body {
 </style>
 </head>
 <body>
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W9MQ5VQT" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="topbar">
   <div class="wrap topbar-in">
     <a href="#top" data-gjs-type="link" class="brand">
@@ -791,7 +801,9 @@ body {
       <h2 data-gjs-type="heading" class="form-title">
         Receba o Radar de Mercado + o link da live do dia 29
       </h2>
-      <form id="lead-form" method="post" data-webhook="https://n8n.srv1145908.hstgr.cloud/webhook/black-friday-2026" novalidate="">
+      <form id="lead-form" name="black-friday-leads" method="post" action="/" data-netlify="true" netlify-honeypot="website" data-webhook="https://n8n.srv1145908.hstgr.cloud/webhook/black-friday-2026" novalidate="">
+        <input type="hidden" name="form-name" value="black-friday-leads" />
+        <p class="honeypot" aria-hidden="true"><label>Não preencha este campo: <input name="website" autocomplete="off" tabindex="-1" /></label></p>
         <label>
           Nome
           <input type="text" name="name" autocomplete="name" placeholder="Seu nome" required="" />
@@ -1069,7 +1081,7 @@ body {
             required=""
           />
         </label>
-        <input type="hidden" name="lp" value="v6" />
+        <input type="hidden" name="lp" value="radarlp" />
         <input type="hidden" name="lead_id" />
         <input type="hidden" name="utm_source" />
         <input type="hidden" name="utm_medium" />
@@ -1303,6 +1315,9 @@ body {
       const whatsapp = leadForm.elements.namedItem('whatsapp').value.replace(/\D/g, '');
       const email = leadForm.elements.namedItem('email').value.trim();
       const ddi = leadForm.elements.namedItem('ddi').value;
+      const honeypot = leadForm.elements.namedItem('website');
+      if (honeypot.value.trim().toLowerCase() === email.toLowerCase()) honeypot.value = '';
+      if (honeypot.value.trim()) return;
       const valid = name.length > 1 && whatsapp.length >= (ddi === '+55' ? 10 : 6) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
       if (!valid) {
@@ -1333,7 +1348,21 @@ body {
           const value = leadForm.elements.namedItem(key).value;
           if (value) next.searchParams.set(key, value);
         });
-        window.location.assign(next.toString());
+        let redirected = false;
+        const redirect = () => {
+          if (redirected) return;
+          redirected = true;
+          window.location.assign(next.toString());
+        };
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: 'lead_form_submit',
+          form_name: leadForm.name,
+          lp: 'radarlp',
+          eventCallback: redirect,
+          eventTimeout: 1500
+        });
+        setTimeout(redirect, 1600);
       } catch (error) {
         console.error('Falha ao enviar cadastro:', error);
         leadMessage.textContent = 'Não foi possível enviar agora. Tente novamente.';
